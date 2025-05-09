@@ -119,10 +119,6 @@ class TypebotResponseService {
             type: "interactive",
             interactive: {
               type: "list",
-              header: {
-                type: "text",
-                text: "Opciones disponibles"
-              },
               body: {
                 text: buttonText
               },
@@ -136,8 +132,7 @@ class TypebotResponseService {
                     title: "Opciones",
                     rows: buttons.map(button => ({
                       id: button.id,
-                      title: button.text,
-                      description: button.text
+                      title: button.text
                     }))
                   }
                 ]
@@ -193,6 +188,8 @@ class TypebotResponseService {
             });
           }
         });
+        // Agregar salto de línea después de cada párrafo
+        fullText += '\n';
       }
     });
 
