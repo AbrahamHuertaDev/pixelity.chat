@@ -137,7 +137,7 @@ class TypebotResponseService {
                     rows: buttons.map(button => ({
                       id: button.id,
                       title: button.text,
-                      description: `Selecciona ${button.text}`
+                      description: button.text
                     }))
                   }
                 ]
