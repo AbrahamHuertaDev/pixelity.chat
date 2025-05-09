@@ -19,6 +19,7 @@ class TypebotController {
       }
 
       const response = await this.typebotService.handleChat(message, chat_id);
+      console.log(JSON.stringify(response, null, 2));
       const formattedResponse = this.responseService.parseResponse({
         ...response,
         phoneNumber

@@ -119,6 +119,10 @@ class TypebotResponseService {
             type: "interactive",
             interactive: {
               type: "list",
+              header: {
+                type: "text",
+                text: "Opciones disponibles"
+              },
               body: {
                 text: buttonText
               },
@@ -132,7 +136,8 @@ class TypebotResponseService {
                     title: "Opciones",
                     rows: buttons.map(button => ({
                       id: button.id,
-                      title: button.text
+                      title: button.text,
+                      description: button.text
                     }))
                   }
                 ]
@@ -168,21 +173,32 @@ class TypebotResponseService {
 
   parseTextMessage(message) {
     const richText = message.content?.richText || [];
-    const text = richText
-      .map(block => {
-        if (block.type === 'p') {
-          return block.children
-            .map(child => child.text)
-            .join('');
-        }
-        return '';
-      })
-      .join('\n')
-      .trim();
+    let fullText = '';
+
+    richText.forEach(block => {
+      if (block.type === 'p') {
+        block.children.forEach(child => {
+          if (child.text) {
+            fullText += child.text;
+          } else if (child.type === 'inline-variable') {
+            // Procesar variable inline
+            child.children.forEach(variableChild => {
+              if (variableChild.type === 'p') {
+                variableChild.children.forEach(variableText => {
+                  if (variableText.text) {
+                    fullText += variableText.text;
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+    });
 
     return {
       type: 'text',
-      content: text
+      content: fullText.trim()
     };
   }
 
