@@ -32,7 +32,12 @@ class TypebotResponseService {
           version: data.typebot.version,
           publishedAt: data.typebot.publishedAt
         } : null,
-        whatsapp: whatsappMessages,
+        whatsapp: whatsappMessages.map(message => ({
+          messaging_product: "whatsapp",
+          recipient_type: "individual",
+          to: "", // Este campo debe ser llenado por el servicio que envía el mensaje
+          ...message
+        })),
         resultId: data.resultId
       };
     } catch (error) {
@@ -47,22 +52,25 @@ class TypebotResponseService {
 
   formatWhatsAppMessages(messages, input) {
     const formattedMessages = [];
+    let lastTextMessage = '';
 
     // Procesar mensajes de texto
     messages.forEach(message => {
       if (message.type === this.responseTypes.TEXT) {
         const text = this.parseTextMessage(message);
         if (text.content) {
+          lastTextMessage = text.content;
           formattedMessages.push({
-            type: 'text',
+            type: "text",
             text: {
+              preview_url: true,
               body: text.content
             }
           });
         }
       } else if (message.type === this.responseTypes.IMAGE) {
         formattedMessages.push({
-          type: 'image',
+          type: "image",
           image: {
             link: message.content?.url,
             caption: message.content?.alt || ''
@@ -70,21 +78,21 @@ class TypebotResponseService {
         });
       } else if (message.type === this.responseTypes.VIDEO) {
         formattedMessages.push({
-          type: 'video',
+          type: "video",
           video: {
             link: message.content?.url
           }
         });
       } else if (message.type === this.responseTypes.AUDIO) {
         formattedMessages.push({
-          type: 'audio',
+          type: "audio",
           audio: {
             link: message.content?.url
           }
         });
       } else if (message.type === this.responseTypes.FILE) {
         formattedMessages.push({
-          type: 'document',
+          type: "document",
           document: {
             link: message.content?.url,
             filename: message.content?.name || 'archivo'
@@ -97,16 +105,24 @@ class TypebotResponseService {
     if (input && input.type === this.responseTypes.CHOICE) {
       const buttons = this.extractButtons(input);
       if (buttons.length > 0) {
+        // Si hay un mensaje de texto anterior, lo usamos como texto del botón
+        const buttonText = lastTextMessage || "Por favor, selecciona una opción:";
+        
+        // Removemos el último mensaje de texto si existe
+        if (lastTextMessage) {
+          formattedMessages.pop();
+        }
+
         formattedMessages.push({
-          type: 'interactive',
+          type: "interactive",
           interactive: {
-            type: 'button',
+            type: "button",
             body: {
-              text: 'Por favor, selecciona una opción:'
+              text: buttonText
             },
             action: {
               buttons: buttons.map(button => ({
-                type: 'reply',
+                type: "reply",
                 reply: {
                   id: button.id,
                   title: button.text
