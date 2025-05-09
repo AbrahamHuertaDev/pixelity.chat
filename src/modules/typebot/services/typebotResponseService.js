@@ -171,6 +171,7 @@ class TypebotResponseService {
     let fullText = '';
 
     richText.forEach(block => {
+      // Manejar diferentes tipos de bloques
       if (block.type === 'p') {
         block.children.forEach(child => {
           if (child.text) {
@@ -188,7 +189,18 @@ class TypebotResponseService {
             });
           }
         });
-        // Agregar salto de línea después de cada párrafo
+        fullText += '\n';
+      } else if (block.type === 'variable') {
+        // Procesar bloque de variable
+        block.children.forEach(child => {
+          if (child.type === 'p') {
+            child.children.forEach(pChild => {
+              if (pChild.text) {
+                fullText += pChild.text;
+              }
+            });
+          }
+        });
         fullText += '\n';
       }
     });
