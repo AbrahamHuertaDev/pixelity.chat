@@ -11,17 +11,17 @@ class TypebotController {
     try {
       const { message, chat_id, phoneNumber } = req.body;
       
-      if (!message || !chat_id || !phoneNumber) {
+      if (!message || !phoneNumber) {
         return res.status(400).json({
           success: false,
-          error: 'Se requiere mensaje, chat_id y número de teléfono'
+          error: 'Se requiere mensaje y número de teléfono'
         });
       }
 
       const response = await this.typebotService.handleChat(message, chat_id);
       const formattedResponse = this.responseService.parseResponse({
         ...response,
-        phoneNumber // Pasamos el número de teléfono al servicio de respuesta
+        phoneNumber
       });
 
       res.json(formattedResponse);

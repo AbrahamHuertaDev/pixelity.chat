@@ -9,7 +9,25 @@ class TypebotService {
 
   async handleChat(message, chatId) {
     try {
-      // Primero intentamos continuar la sesión existente
+      // Si no hay chatId, iniciamos una nueva sesión
+      if (!chatId || chatId === 'null' || chatId === 'undefined' || chatId.trim() === '') {
+        console.log('Iniciando nueva sesión...');
+        const newSessionResponse = await axios.post(`${this.baseUrl}/typebots/${this.typebotId}/startChat`, {
+          message,
+          chat_id: null
+        });
+
+        if (!newSessionResponse.data) {
+          throw new Error('No se recibió respuesta al iniciar nueva sesión');
+        }
+
+        return {
+          data: newSessionResponse.data,
+          sessionId: newSessionResponse.data.sessionId
+        };
+      }
+
+      // Si hay chatId, intentamos continuar la sesión existente
       try {
         const response = await axios.post(`${this.baseUrl}/sessions/${chatId}/continueChat`, {
           message
