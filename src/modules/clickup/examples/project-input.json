@@ -1,0 +1,140 @@
+{
+  "name": "Campaña de Barbería",
+  "multiple_assignees": true,
+  "features": {
+    "due_dates": {
+      "enabled": true,
+      "start_date": true,
+      "remap_due_dates": true,
+      "remap_closed_due_date": false
+    },
+    "time_tracking": {
+      "enabled": true
+    },
+    "tags": {
+      "enabled": true
+    },
+    "time_estimates": {
+      "enabled": true
+    },
+    "checklists": {
+      "enabled": true
+    },
+    "custom_fields": {
+      "enabled": true
+    },
+    "dependency_warning": {
+      "enabled": true
+    },
+    "portfolios": {
+      "enabled": true
+    }
+  },
+  "statuses": [
+    {
+      "status": "to do",
+      "type": "open",
+      "orderindex": 0,
+      "color": "#d3d3d3"
+    },
+    {
+      "status": "in progress",
+      "type": "custom",
+      "orderindex": 1,
+      "color": "#ffcc00"
+    },
+    {
+      "status": "review",
+      "type": "custom",
+      "orderindex": 2,
+      "color": "#579BFC"
+    },
+    {
+      "status": "done",
+      "type": "closed",
+      "orderindex": 3,
+      "color": "#6bc950"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Diseño",
+      "color": "#00ff00",
+      "background": "#e6ffe6"
+    },
+    {
+      "name": "Desarrollo",
+      "color": "#0000ff",
+      "background": "#e6e6ff"
+    },
+    {
+      "name": "Testing",
+      "color": "#ff0000",
+      "background": "#ffe6e6"
+    }
+  ],
+  "folders": [
+    {
+      "name": "Campaña de Barbería",
+      "lists": [
+        {
+          "name": "Diseño y Branding",
+          "description": "Lista de tareas relacionadas con el diseño y branding de la campaña",
+          "priority": 1,
+          "tasks": [
+            {
+              "name": "Diseño de Logo",
+              "description": "# Diseño de Logo\n\n## Descripción\nCrear un logo moderno y atractivo para la barbería con las siguientes características:\n\n- Estilo vintage pero moderno\n- Paleta de colores: negro, dorado y gris\n- Versiones para diferentes usos\n\n## Requisitos\n- Archivos en formato vectorial\n- Versiones en diferentes tamaños\n- Guía de uso del logo",
+              "status": "to do",
+              "priority": 1,
+              "due_date": "2024-05-15T00:00:00.000Z",
+              "assignees": [],
+              "tags": ["Diseño"]
+            },
+            {
+              "name": "Diseño de Flyers",
+              "description": "# Diseño de Flyers\n\n## Descripción\nDiseñar flyers promocionales con las siguientes secciones:\n\n- Ofertas especiales\n- Horarios de atención\n- Ubicación\n- Contacto\n\n## Requisitos\n- Diseño atractivo y profesional\n- Información clara y legible\n- Incluir QR para reservas",
+              "status": "to do",
+              "priority": 2,
+              "due_date": "2024-05-16T00:00:00.000Z",
+              "assignees": [],
+              "tags": ["Diseño"]
+            }
+          ]
+        },
+        {
+          "name": "Redes Sociales",
+          "description": "Lista de tareas para la gestión de redes sociales",
+          "priority": 2,
+          "tasks": [
+            {
+              "name": "Crear Contenido Instagram",
+              "description": "# Contenido para Instagram\n\n## Descripción\nDesarrollar contenido para Instagram con las siguientes secciones:\n\n- Fotos de trabajos realizados\n- Videos de procesos\n- Historias destacadas\n- Reels promocionales\n\n## Requisitos\n- Calidad fotográfica profesional\n- Edición de video atractiva\n- Hashtags relevantes\n- Descripciones optimizadas",
+              "status": "to do",
+              "priority": 1,
+              "due_date": "2024-05-17T00:00:00.000Z",
+              "assignees": [],
+              "tags": ["Desarrollo"]
+            }
+          ]
+        },
+        {
+          "name": "Marketing Digital",
+          "description": "Lista de tareas para estrategias de marketing digital",
+          "priority": 3,
+          "tasks": [
+            {
+              "name": "Configurar Google My Business",
+              "description": "# Configuración de Google My Business\n\n## Descripción\nConfigurar y optimizar el perfil de Google My Business con:\n\n- Información completa del negocio\n- Fotos de alta calidad\n- Horarios actualizados\n- Reseñas de clientes\n\n## Requisitos\n- SEO local optimizado\n- Respuestas a reseñas\n- Actualización regular de contenido",
+              "status": "to do",
+              "priority": 1,
+              "due_date": "2024-05-18T00:00:00.000Z",
+              "assignees": [],
+              "tags": ["Desarrollo"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} 
