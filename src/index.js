@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const routes = require('./routes');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8085;
 
 // Middleware
 app.use(helmet());
