@@ -29,6 +29,7 @@ class TypebotService {
 
       // Si hay chatId, intentamos continuar la sesión existente
       try {
+        console.log('Continuando sesión existente:', chatId);
         const response = await axios.post(`${this.baseUrl}/sessions/${chatId}/continueChat`, {
           message
         });
@@ -37,11 +38,21 @@ class TypebotService {
           throw new Error('No se recibió respuesta de Typebot');
         }
 
+        // Asegurarnos de que la respuesta tenga la estructura correcta
+        const responseData = {
+          messages: response.data.messages || [],
+          input: response.data.input || null,
+          typebot: response.data.typebot || null,
+          resultId: response.data.resultId || null
+        };
+
         return {
-          data: response.data,
+          data: responseData,
           sessionId: chatId
         };
       } catch (continueError) {
+        console.error('Error al continuar sesión:', continueError.response?.data || continueError.message);
+        
         // Si la sesión no existe (404), iniciamos una nueva
         if (continueError.response?.status === 404) {
           console.log('Sesión no encontrada, iniciando nueva sesión...');

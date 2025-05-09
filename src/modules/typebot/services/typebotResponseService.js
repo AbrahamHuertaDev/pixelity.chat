@@ -119,10 +119,6 @@ class TypebotResponseService {
             type: "interactive",
             interactive: {
               type: "list",
-              header: {
-                type: "text",
-                text: "Opciones disponibles"
-              },
               body: {
                 text: buttonText
               },
