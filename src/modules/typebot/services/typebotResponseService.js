@@ -35,7 +35,7 @@ class TypebotResponseService {
         whatsapp: whatsappMessages.map(message => ({
           messaging_product: "whatsapp",
           recipient_type: "individual",
-          to: phoneNumber, // Usar el número de teléfono recibido
+          to: phoneNumber,
           ...message
         })),
         resultId: data.resultId
@@ -113,24 +113,58 @@ class TypebotResponseService {
           formattedMessages.pop();
         }
 
-        formattedMessages.push({
-          type: "interactive",
-          interactive: {
-            type: "button",
-            body: {
-              text: buttonText
-            },
-            action: {
-              buttons: buttons.map(button => ({
-                type: "reply",
-                reply: {
-                  id: button.id,
-                  title: button.text
-                }
-              }))
+        // Si hay más de 3 botones, usamos lista
+        if (buttons.length > 3) {
+          formattedMessages.push({
+            type: "interactive",
+            interactive: {
+              type: "list",
+              header: {
+                type: "text",
+                text: "Opciones disponibles"
+              },
+              body: {
+                text: buttonText
+              },
+              footer: {
+                text: "Selecciona una opción de la lista"
+              },
+              action: {
+                button: "Ver opciones",
+                sections: [
+                  {
+                    title: "Opciones",
+                    rows: buttons.map(button => ({
+                      id: button.id,
+                      title: button.text,
+                      description: `Selecciona ${button.text}`
+                    }))
+                  }
+                ]
+              }
             }
-          }
-        });
+          });
+        } else {
+          // Si hay 3 o menos botones, usamos botones normales
+          formattedMessages.push({
+            type: "interactive",
+            interactive: {
+              type: "button",
+              body: {
+                text: buttonText
+              },
+              action: {
+                buttons: buttons.map(button => ({
+                  type: "reply",
+                  reply: {
+                    id: button.id,
+                    title: button.text
+                  }
+                }))
+              }
+            }
+          });
+        }
       }
     }
 
