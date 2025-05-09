@@ -1,50 +1,51 @@
 const axios = require('axios');
-const { TypebotResponseService } = require('./typebotResponseService');
+const config = require('../../../config');
 
 class TypebotService {
   constructor() {
-    this.baseUrl = 'https://bot.pixelitystudios.com/api/v1';
-    this.typebotId = 'my-typebot-c1srca8';
-    this.responseService = new TypebotResponseService();
+    this.baseUrl = config.typebot.apiUrl;
+    this.typebotId = config.typebot.typebotId;
   }
 
-  async handleChat(message, chatId = null) {
+  async handleChat(message, chatId) {
     try {
-      let url;
-      let payload;
-      let response;
+      // Primero intentamos continuar la sesión existente
+      try {
+        const response = await axios.post(`${this.baseUrl}/sessions/${chatId}/continueChat`, {
+          message
+        });
 
-      if (chatId && chatId !== 'null' && chatId !== 'undefined' && chatId.trim() !== '') {
-        try {
-          // Solo intentamos continuar si hay un chat_id válido
-          url = `${this.baseUrl}/sessions/${chatId}/continueChat`;
-          payload = { message };
-          response = await axios.post(url, payload);
-        } catch (continueError) {
-          console.log('Error al continuar chat, iniciando nueva sesión:', continueError.message);
-          
-          // Si falla, iniciamos nueva sesión
-          url = `${this.baseUrl}/typebots/${this.typebotId}/startChat`;
-          payload = { message, chat_id: null };
-          response = await axios.post(url, payload);
+        if (!response.data) {
+          throw new Error('No se recibió respuesta de Typebot');
         }
-      } else {
-        // Si no hay chat_id o es inválido, iniciamos una nueva conversación
-        url = `${this.baseUrl}/typebots/${this.typebotId}/startChat`;
-        payload = { message, chat_id: null };
-        response = await axios.post(url, payload);
+
+        return {
+          data: response.data,
+          sessionId: chatId
+        };
+      } catch (continueError) {
+        // Si la sesión no existe (404), iniciamos una nueva
+        if (continueError.response?.status === 404) {
+          console.log('Sesión no encontrada, iniciando nueva sesión...');
+          const newSessionResponse = await axios.post(`${this.baseUrl}/typebots/${this.typebotId}/startChat`, {
+            message,
+            chat_id: null
+          });
+
+          if (!newSessionResponse.data) {
+            throw new Error('No se recibió respuesta al iniciar nueva sesión');
+          }
+
+          return {
+            data: newSessionResponse.data,
+            sessionId: newSessionResponse.data.sessionId
+          };
+        }
+        throw continueError;
       }
-
-      // Procesar la respuesta usando el servicio de respuesta
-      const parsedResponse = this.responseService.parseResponse({
-        data: response.data,
-        sessionId: response.data.sessionId || chatId
-      });
-
-      return parsedResponse;
     } catch (error) {
-      console.error('Error en handleChat:', error);
-      throw new Error(error.response?.data?.message || 'Error al procesar el chat');
+      console.error('Error en handleChat:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'Error al comunicarse con Typebot');
     }
   }
 }

@@ -12,7 +12,7 @@ class TypebotResponseService {
 
   parseResponse(response) {
     try {
-      const { data, sessionId } = response;
+      const { data, sessionId, phoneNumber } = response;
       
       if (!data) {
         return {
@@ -35,7 +35,7 @@ class TypebotResponseService {
         whatsapp: whatsappMessages.map(message => ({
           messaging_product: "whatsapp",
           recipient_type: "individual",
-          to: "", // Este campo debe ser llenado por el servicio que envía el mensaje
+          to: phoneNumber, // Usar el número de teléfono recibido
           ...message
         })),
         resultId: data.resultId
