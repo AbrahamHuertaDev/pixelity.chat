@@ -14,7 +14,6 @@ class TypebotResponseService {
     try {
       const { data, sessionId } = response;
       
-      // Si no hay datos, retornar error
       if (!data) {
         return {
           success: false,
@@ -22,19 +21,9 @@ class TypebotResponseService {
         };
       }
 
-      // Extraer mensajes
-      const messages = this.extractMessages(data.messages || []);
-      
-      // Extraer botones si existen
-      const buttons = this.extractButtons(data.input);
+      // Extraer mensajes y convertirlos al formato de WhatsApp
+      const whatsappMessages = this.formatWhatsAppMessages(data.messages || [], data.input);
 
-      // Extraer acciones del cliente
-      const clientActions = this.extractClientActions(data.clientSideActions || []);
-
-      // Extraer logs si existen
-      const logs = data.logs || [];
-
-      // Construir respuesta final
       return {
         success: true,
         sessionId,
@@ -43,10 +32,7 @@ class TypebotResponseService {
           version: data.typebot.version,
           publishedAt: data.typebot.publishedAt
         } : null,
-        messages,
-        buttons,
-        clientActions,
-        logs,
+        whatsapp: whatsappMessages,
         resultId: data.resultId
       };
     } catch (error) {
@@ -59,26 +45,80 @@ class TypebotResponseService {
     }
   }
 
-  extractMessages(messages) {
-    return messages.map(message => {
-      switch (message.type) {
-        case this.responseTypes.TEXT:
-          return this.parseTextMessage(message);
-        case this.responseTypes.IMAGE:
-          return this.parseImageMessage(message);
-        case this.responseTypes.VIDEO:
-          return this.parseVideoMessage(message);
-        case this.responseTypes.AUDIO:
-          return this.parseAudioMessage(message);
-        case this.responseTypes.FILE:
-          return this.parseFileMessage(message);
-        default:
-          return {
-            type: 'unknown',
-            content: message
-          };
+  formatWhatsAppMessages(messages, input) {
+    const formattedMessages = [];
+
+    // Procesar mensajes de texto
+    messages.forEach(message => {
+      if (message.type === this.responseTypes.TEXT) {
+        const text = this.parseTextMessage(message);
+        if (text.content) {
+          formattedMessages.push({
+            type: 'text',
+            text: {
+              body: text.content
+            }
+          });
+        }
+      } else if (message.type === this.responseTypes.IMAGE) {
+        formattedMessages.push({
+          type: 'image',
+          image: {
+            link: message.content?.url,
+            caption: message.content?.alt || ''
+          }
+        });
+      } else if (message.type === this.responseTypes.VIDEO) {
+        formattedMessages.push({
+          type: 'video',
+          video: {
+            link: message.content?.url
+          }
+        });
+      } else if (message.type === this.responseTypes.AUDIO) {
+        formattedMessages.push({
+          type: 'audio',
+          audio: {
+            link: message.content?.url
+          }
+        });
+      } else if (message.type === this.responseTypes.FILE) {
+        formattedMessages.push({
+          type: 'document',
+          document: {
+            link: message.content?.url,
+            filename: message.content?.name || 'archivo'
+          }
+        });
       }
     });
+
+    // Procesar botones si existen
+    if (input && input.type === this.responseTypes.CHOICE) {
+      const buttons = this.extractButtons(input);
+      if (buttons.length > 0) {
+        formattedMessages.push({
+          type: 'interactive',
+          interactive: {
+            type: 'button',
+            body: {
+              text: 'Por favor, selecciona una opción:'
+            },
+            action: {
+              buttons: buttons.map(button => ({
+                type: 'reply',
+                reply: {
+                  id: button.id,
+                  title: button.text
+                }
+              }))
+            }
+          }
+        });
+      }
+    }
+
+    return formattedMessages;
   }
 
   parseTextMessage(message) {
@@ -101,47 +141,6 @@ class TypebotResponseService {
     };
   }
 
-  parseImageMessage(message) {
-    return {
-      type: 'image',
-      content: {
-        url: message.content?.url,
-        alt: message.content?.alt || ''
-      }
-    };
-  }
-
-  parseVideoMessage(message) {
-    return {
-      type: 'video',
-      content: {
-        url: message.content?.url,
-        type: message.content?.type || 'video/mp4'
-      }
-    };
-  }
-
-  parseAudioMessage(message) {
-    return {
-      type: 'audio',
-      content: {
-        url: message.content?.url,
-        type: message.content?.type || 'audio/mpeg'
-      }
-    };
-  }
-
-  parseFileMessage(message) {
-    return {
-      type: 'file',
-      content: {
-        url: message.content?.url,
-        name: message.content?.name || 'archivo',
-        type: message.content?.type || 'application/octet-stream'
-      }
-    };
-  }
-
   extractButtons(input) {
     if (!input || input.type !== this.responseTypes.CHOICE) {
       return [];
@@ -152,28 +151,6 @@ class TypebotResponseService {
       text: item.content,
       edgeId: item.outgoingEdgeId
     }));
-  }
-
-  extractClientActions(actions) {
-    return actions.map(action => {
-      switch (action.type) {
-        case 'redirect':
-          return {
-            type: 'redirect',
-            url: action.url
-          };
-        case 'script':
-          return {
-            type: 'script',
-            script: action.script
-          };
-        default:
-          return {
-            type: 'unknown',
-            action
-          };
-      }
-    });
   }
 }
 
